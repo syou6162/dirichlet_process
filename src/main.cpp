@@ -4,9 +4,16 @@
 #include <boost/algorithm/string.hpp>
 #include "DirichletProcess.hpp"
 
-int main(int argc, char *argv[]) {
-  DirichletProcess dp(0.001, 0.3);
+void print_result(DirichletProcess& dp, const std::vector<int>& test, const int iter) {
+  std::cout << iter << "\t" 
+			<< dp.get_num_of_clusters() << "\t" 
+			<< dp.log_likelihood() << "\t" 
+			<< dp.perplexity(test) << std::endl;
+}
 
+int main(int argc, char *argv[]) {
+  DirichletProcess dp(0.01, 0.001);
+  //  DirichletProcess dp(1.1, 350.0);
   std::string filename = "tmp.txt";
   std::ifstream ifs(filename.c_str());
 
@@ -30,14 +37,14 @@ int main(int argc, char *argv[]) {
   }
 
   dp.initialize();
-  for (int i = 0; i < 3000; i++) {
+  print_result(dp, test, 0);
+  for (int i = 1; i < 3000; i++) {
 	dp.gibbs_sampling();
-	std::cout << i << "\t" 
-			  << dp.get_num_of_clusters() << "\t" 
-			  << dp.log_likelihood() << "\t" 
-			  << dp.perplexity(test) << std::endl;
+	print_result(dp, test, i);
+	//	std::cerr << "alpha: " << dp.sample_concentration_parameter(0.5) << std::endl;
+	//	std::cerr << "alpha: " << dp.averaging_concentration_parameter(10) << std::endl;
   }
 
-  dp.print_result();
+  //  dp.print_result();
   return 0;
 };

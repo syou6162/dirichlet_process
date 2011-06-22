@@ -1,6 +1,9 @@
 def build(bld):
+  source = ['DirichletProcess.cpp', 'util.cpp']
+  
   bld(features = 'cxx cprogram',
-      source = 'main.cpp',
+      source = ['main.cpp'] + source,
       target = 'main',
       includes = ['.'],
+      cxxflags = ['-O3', '-Wall'],
       lib = ['gflags', 'glog'])
