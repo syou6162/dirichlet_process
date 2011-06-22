@@ -55,27 +55,18 @@ double DirichletProcess::make_cumsum_vector(std::vector<double>& posts, const in
 };
 
 void DirichletProcess::initialize() {
-  increase(0, 0);
-  for (int i = 1; i < N_; i++) {
-	// number of existing tables + new table
-	std::vector<double> posts(get_num_of_clusters() + 1);
-	double psum = make_cumsum_vector(posts, i);
-	Sampler sampler(posts, psum);
-	int next_z = get_current_cluster_id(sampler.sample());
-	increase(i, next_z);
-  }
-  std::cerr << "Number of clusters is " << get_num_of_clusters() << std::endl;
-  std::cerr << "Perplexity: " << perplexity(w_) << std::endl;
-
-  // boost::math::beta_distribution<> gen_beta(gamma_ + 1, (double) N_);
-  // double x = boost::math::quantile(gen_beta, randomValue_());
-  // gamma_ = sample_concentration_parameter(x);
-  // std::cerr << "gamma: " << gamma_ << std::endl;
+  gibbs_sampling(true);
 };
 
-void DirichletProcess::gibbs_sampling() {
+void DirichletProcess::gibbs_sampling(const bool init) {
   for (int i = 0; i < N_; i++) {
-	decrease(i, z_[i]);
+	if (init) {
+	  if (i == 0) {
+		increase(0, 0);
+	  }
+	} else {
+	  decrease(i, z_[i]);
+	}
 	std::vector<double> posts(get_num_of_clusters() + 1);
 
 	double psum = make_cumsum_vector(posts, i);
@@ -92,10 +83,10 @@ void DirichletProcess::gibbs_sampling() {
   std::cerr << "Number of clusters is " << get_num_of_clusters() << std::endl;
   std::cerr << "Perplexity: " << perplexity(w_) << std::endl;
 
-  //  boost::math::beta_distribution<> gen_beta(gamma_ + 1, (double) N_);
-  //  double x = boost::math::quantile(gen_beta, randomValue_());
-  //  gamma_ = sample_concentration_parameter(x);
-  std::cerr << "gamma: " << gamma_ << std::endl;
+  // boost::math::beta_distribution<> gen_beta(gamma_ + 1, (double) N_);
+  // double x = boost::math::quantile(gen_beta, math::random());
+  // gamma_ = sample_concentration_parameter(x);
+  // std::cerr << "gamma: " << gamma_ << std::endl;
 
   //	gamma_ = averaging_concentration_parameter(10);
 
@@ -170,7 +161,6 @@ double DirichletProcess::perplexity(const std::vector<int>& words) {
 double DirichletProcess::log_likelihood() {
   double result = 0.0;
   // log(x | z)
-
   result += get_num_of_clusters() * lgamma(beta_ * get_num_of_vocablary());
   result -= get_num_of_clusters() * get_num_of_vocablary() * lgamma(beta_);
   for (std::tr1::unordered_map<int, int>::iterator it = Nk_.begin(); it != Nk_.end(); it++) {
@@ -184,15 +174,17 @@ double DirichletProcess::log_likelihood() {
   // log(z)
   result += get_num_of_clusters() * log(gamma_);
   for (std::tr1::unordered_map<int, int>::iterator it = Nk_.begin(); it != Nk_.end(); it++) {
-	int k = it->first;
-	for (int i = 1; i < Nk_[k]; i++) {
-	  result += log(i);
+	int K = it->first;
+	for (int k = 0; k < K; k++) {
+	  for (int i = 1; i < it->second; i++) {
+		result += log(i);
+	  }
 	}
   }
 
   // below is constant
   for (int i = 1; i <= N_; i++) {
-	result -= log(gamma_ + i - 1);
+  	result -= log(gamma_ + i - 1);
   }
   return result;
 };

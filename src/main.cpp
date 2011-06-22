@@ -12,7 +12,7 @@ void print_result(DirichletProcess& dp, const std::vector<int>& test, const int 
 }
 
 int main(int argc, char *argv[]) {
-  DirichletProcess dp(0.01, 0.001);
+  DirichletProcess dp(1.0, 0.5);
   //  DirichletProcess dp(1.1, 350.0);
   std::string filename = "tmp.txt";
   std::ifstream ifs(filename.c_str());
@@ -29,10 +29,10 @@ int main(int argc, char *argv[]) {
   }
 
   std::random_shuffle(train.begin(), train.end());
-  for (int i = 0; i < 10000; i++){
+  for (int i = 0; i < 100000; i++){
 	dp.add(train[i]);
   }
-  for (int i = 10000; i < 13000; i++){
+  for (int i = 100000; i < 130000; i++){
 	test.push_back(dp.getID(train[i], false));
   }
 

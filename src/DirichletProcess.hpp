@@ -10,21 +10,6 @@
 #include "NextNumberGenerator.hpp"
 #include "util.hpp"
 
-// template<class D, class G = boost::mt19937>
-// class Rand {
-//   G gen_;
-//   D dst_;
-//   boost::variate_generator<G, D> rand_;
-// public:
-//   Rand() : gen_(static_cast<unsigned long>(time(NULL) + getpid())), rand_(gen_, dst_) {}
-//   template<typename T1>
-//   Rand(T1 a1) : gen_(static_cast<unsigned long>(time(NULL) + getpid())), dst_(a1), rand_(gen_, dst_) {}
-//   template<typename T1, typename T2>
-//   Rand(T1 a1, T2 a2) : gen_(static_cast<unsigned long>(time(NULL) + getpid())), dst_(a1, a2), rand_(gen_, dst_) {}
-
-//   typename D::result_type operator()() { return rand_(); }
-// };
-
 typedef std::map<std::string, double> container;
 typedef std::pair<std::string, double> value_type;
 
@@ -51,7 +36,7 @@ public:
   void decrease(const int index, const int cluster);
   double make_cumsum_vector(std::vector<double>& posts, const int index);
   void initialize();
-  void gibbs_sampling();
+  void gibbs_sampling(const bool init = false);
   int getID(const std::string& str, const bool train);
 
   void print_result();
